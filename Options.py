@@ -1,8 +1,8 @@
 import customtkinter
 import tkinter
 import threading
+import simpleaudio
 from tkinter import filedialog
-from pygame import mixer
 
 class Options_slider_frame(customtkinter.CTkFrame):
     def __init__(self, top_level, default_value, time_string):
@@ -53,13 +53,13 @@ class Options_toplevel():
         self.submit_button.pack(pady=(30,30), padx=30)
 
     def add_music(self):
-        filetypes = (('mp3 files', '*.mp3'),
-                     ('wav files', '*.wav'),
-                     ('All files', '*.*'))
+        filetypes = (('wav files', '*.wav'),)
         filename = filedialog.askopenfilename(title='Pick your song',
                                                       initialdir='.',
                                                       filetypes=filetypes)
-        mixer.music.load(filename)
+        if filename:
+            print(filename)
+            self.root.timer.wave_obj = simpleaudio.WaveObject.from_wave_file(filename)        
 
     def submit(self):
         # (0, 0, 0, h, m, s, 0, 0, 0)

@@ -1,12 +1,13 @@
 import customtkinter
 import tkinter
 import threading
+import simpleaudio
 from time import strftime, sleep
-from pygame import mixer
 
 class Pomodoro_frame(customtkinter.CTkFrame):
     start = True
     study = True
+    wave_obj = None
 
     def __init__(self):
         super().__init__()
@@ -17,7 +18,7 @@ class Pomodoro_frame(customtkinter.CTkFrame):
         self.time_counter = customtkinter.CTkLabel(self,
                                                    textvariable=self.string_time,
                                                    text_font=('Arial', 40, 'bold'))
-        self.time_counter.pack(padx=100, pady=15)
+        self.time_counter.pack(padx=30, pady=15)
 
     def update_times(self, new_study_time, new_break_time):
         self.study_time = new_study_time
@@ -33,7 +34,10 @@ class Pomodoro_frame(customtkinter.CTkFrame):
             for h in range(hours, -1, -1):
                 for m in range(minutes, -1, -1):
                     for s in range(seconds, -1, -1):
-                        self.string_time.set(strftime("%H : %M : %S", (0, 0, 0, h, m, s, 0, 0, 0)))
+                        if self.study:
+                            self.string_time.set("📖"+strftime("%H : %M : %S", (0, 0, 0, h, m, s, 0, 0, 0))+"📖")
+                        else:
+                            self.string_time.set("🍵"+strftime("%H : %M : %S", (0, 0, 0, h, m, s, 0, 0, 0))+"🍵")
                         for i in range(10):
                             self.after(100, self.update())
                         if not self.start:
@@ -48,6 +52,6 @@ class Pomodoro_frame(customtkinter.CTkFrame):
                 self.pomodoro_string.set("🍅Pomodoros: " + str(self.pomodoros))
             self.study = not self.study
             # Daj delay na zagranie sygnalu dzwiekowego konca nauki/przerwy
-            mixer.music.play()
-            while mixer.music.get_busy():
-                sleep(1)
+            if self.wave_obj:
+                play_obj = self.wave_obj.play()
+                play_obj.wait_done()

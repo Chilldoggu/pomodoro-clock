@@ -1,6 +1,6 @@
 import threading
 import customtkinter
-from pygame import mixer
+import simpleaudio
 from PIL import Image, ImageTk
 
 from Options import Options_slider_frame, Options_toplevel
@@ -15,9 +15,6 @@ class App(customtkinter.CTk):
         self.geometry("600x200")
         self.icon = ImageTk.PhotoImage(Image.open('clock.ico'))
         self.iconphoto(True, self.icon)
-
-        mixer.init()
-        mixer.music.load("xue-hua-piao-piao.mp3")
 
         self.columnconfigure(0, weight=2)
         self.columnconfigure(1, weight=2)
