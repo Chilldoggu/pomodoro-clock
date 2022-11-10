@@ -9,7 +9,7 @@
 - Adding own `*.wav` files as sound signals.
 - Counting how much pomodoros you made.
 
-## External packages used
+## External packages
 - [customtkinter](https://github.com/TomSchimansky/CustomTkinter) was used for GUI.
 - [simpleaudio](https://github.com/hamiltron/py-simple-audio) was used for sounds.
 
