@@ -1,6 +1,7 @@
 # pomodoro-clock
 ## How it looks
-![pomodoro](https://i.ibb.co/dfmMqnG/pomodoro-drip.png)
+![pomodoro main window](https://github.com/Chilldoggu/pomodoro-clock/blob/master/IMG/pomodoro_main.png)
+![pomodoro options window](https://github.com/Chilldoggu/pomodoro-clock/blob/master/IMG/pomodoro_options.png)
 
 ## Features
 - Setting up your own study and break times.
