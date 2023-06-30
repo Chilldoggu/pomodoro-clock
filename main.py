@@ -1,9 +1,10 @@
 import threading
 import customtkinter
-import simpleaudio
+
+from logger import Log
 from PIL import Image, ImageTk
 
-from Options import Options_slider_frame, Options_toplevel
+from Options import Options_toplevel
 from Pomodoro_frame import Pomodoro_frame
 
 customtkinter.set_appearance_mode("dark")
@@ -11,6 +12,7 @@ customtkinter.set_appearance_mode("dark")
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+        self.logger = Log()
         self.title("Pomodoro Clock")
         self.geometry("600x200")
         self.icon = ImageTk.PhotoImage(Image.open('clock.ico'))
@@ -21,18 +23,18 @@ class App(customtkinter.CTk):
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
 
-        self.timer = Pomodoro_frame()
+        self.timer = Pomodoro_frame(root=self, logger=self.logger)
         self.timer.grid(column=0, row=0, columnspan=2)
 
         self.pomodoro_counter = customtkinter.CTkLabel(self, 
                                                        textvariable=self.timer.pomodoro_string,
-                                                       text_font=('Arial', 12)) 
+                                                       font=('Arial', 16)) 
         self.pomodoro_counter.grid(column=0, rows=1, sticky='NW', padx=(60,0))
 
         self.switch = customtkinter.CTkSwitch(self,
                                               text="Start / Pause", 
                                               command=self.play_pause, 
-                                              text_font=('Arial', 12),
+                                              font=('Arial', 16),
                                               state='disabled')
         self.switch.grid(row=1, column=1, sticky='NE', padx=(0,60))
 
@@ -40,7 +42,7 @@ class App(customtkinter.CTk):
                                                      width=60,
                                                      height=30,
                                                      text="Options",
-                                                     text_font=('Arial', 12),
+                                                     font=('Arial', 12),
                                                      command=self.pop_options)
         self.option_button.grid(row=2, column=1, sticky='N', pady=(0,20), padx=(40, 0))
 
@@ -50,7 +52,7 @@ class App(customtkinter.CTk):
         self.timer.start = not self.timer.start
 
     def pop_options(self):
-        self.Options = Options_toplevel(self)
+        self.Options = Options_toplevel(root=self)
 
     def start_countdown(self):
         self.event = threading.Event()
