@@ -7,3 +7,5 @@ applause.wav
 *.log
 pomodoro_clock/
 *.ico
+env_pomodoro
+logs.log
