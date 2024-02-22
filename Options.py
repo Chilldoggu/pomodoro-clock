@@ -2,7 +2,10 @@ import customtkinter
 import tkinter
 import threading
 import simpleaudio
+import json
+from pathlib import Path
 from tkinter import filedialog
+from time import sleep
 
 class Options_slider_frame(customtkinter.CTkFrame):
     def __init__(self, top_level, default_value, time_string, range=(0, 120)):
@@ -33,15 +36,29 @@ class Options_slider_frame(customtkinter.CTkFrame):
 
 
 class Options_toplevel():
-    def __init__(self, root):
+    def __init__(self, root, settings):
         self.root = root
         top_level = customtkinter.CTkToplevel() 
         top_level.title("Options")
 
-        self.study_frame = Options_slider_frame(top_level, default_value=50, time_string="Study time: ")
-        self.break_frame = Options_slider_frame(top_level, default_value=10, time_string="Break time: ")
-        self.long_break_frame = Options_slider_frame(top_level, default_value=20, time_string="Long break time: ")
-        self.until_long_break_frame = Options_slider_frame(top_level, default_value=3, time_string="Sessions until long break: ", range=(1, 10))
+        self.notification_filename = None
+
+        if settings != 1:
+            study_time = settings["study_time"][3] * 60 + settings["study_time"][4]
+            break_time = settings["break_time"][3] * 60 + settings["break_time"][4]
+            long_break_time = settings["long_break_time"][3] * 60 + settings["long_break_time"][4]
+            until_long_break = settings["until_long_break_num"]
+        else:
+            study_time = 50
+            break_time = 10
+            long_break_time = 20
+            until_long_break = 3
+
+
+        self.study_frame = Options_slider_frame(top_level, default_value=study_time, time_string="Study time: ")
+        self.break_frame = Options_slider_frame(top_level, default_value=break_time, time_string="Break time: ")
+        self.long_break_frame = Options_slider_frame(top_level, default_value=long_break_time, time_string="Long break time: ")
+        self.until_long_break_frame = Options_slider_frame(top_level, default_value=until_long_break, time_string="Sessions until long break: ", range=(1, 10))
         self.study_frame.pack(pady=(30, 0), padx=30)
         self.break_frame.pack(pady=(30, 0), padx=30)
         self.long_break_frame.pack(pady=(30,0), padx=30)
@@ -60,12 +77,13 @@ class Options_toplevel():
 
     def add_music(self):
         filetypes = (('wav files', '*.wav'),)
-        filename = filedialog.askopenfilename(title='Pick your song',
+        # Get path relative to current working directory (useful when saving to settings.json)
+        self.notification_filename = Path(filedialog.askopenfilename(title='Pick your song',
                                                       initialdir='.',
-                                                      filetypes=filetypes)
-        if filename:
+                                                      filetypes=filetypes)).relative_to(Path().cwd())
+        if self.notification_filename:
             # print(filename)
-            self.root.timer.wave_obj = simpleaudio.WaveObject.from_wave_file(filename)        
+            self.root.timer.wave_obj = simpleaudio.WaveObject.from_wave_file(str(self.notification_filename))        
 
 
     def submit(self):
@@ -74,14 +92,34 @@ class Options_toplevel():
         break_minutes = self.break_frame.new_time.get()
         long_break_minutes = self.long_break_frame.new_time.get()
         until_long_break_num = self.until_long_break_frame.new_time.get()
+        notification_filename = str(self.notification_filename)
 
-        study_time = (0, 0, 0, int(study_minutes/60), study_minutes, 0, 0, 0, 0)
-        break_time = (0, 0, 0, int(break_minutes/60), break_minutes, 0, 0, 0, 0)
-        long_break_time = (0, 0, 0, int(long_break_minutes/60), long_break_minutes, 0, 0, 0, 0)
+        study_time      = (0, 0, 0, int(study_minutes/60), study_minutes % 60, 0, 0, 0, 0)
+        break_time      = (0, 0, 0, int(break_minutes/60), break_minutes % 60, 0, 0, 0, 0)
+        long_break_time = (0, 0, 0, int(long_break_minutes/60), long_break_minutes % 60, 0, 0, 0, 0)
 
         self.root.timer.update_times(study_time, break_time, long_break_time, until_long_break_num)
-        if threading.active_count() == 1:
-            self.root.start_countdown()
-            self.root.switch.configure(state='normal')
+
+        json_data = {}
+        json_data["study_time"]            = study_time
+        json_data["break_time"]            = break_time
+        json_data["long_break_time"]       = long_break_time
+        json_data["until_long_break_num"]  = until_long_break_num
+        json_data["notification_filename"] = notification_filename
+
+        # Save to json
+        with open("settings.json", "w") as settings_file:
+            settings_file.write(json.dumps(json_data, indent=4))
+
+        if threading.active_count() > 1:
+            # If we are paused then unpause with switch
+            if not self.root.timer.start:
+                self.root.switch.toggle()
+            # Kill the thread
+            self.root.thread_watcher["stop_flags"][-1] = True
+
+        self.root.start_countdown()
+        self.root.switch.configure(state='normal')
+        self.root.switch.toggle()
             
 

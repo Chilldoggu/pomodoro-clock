@@ -1,5 +1,9 @@
 import customtkinter
 import tkinter
+import json
+import simpleaudio
+import threading
+from pathlib import Path
 from time import strftime
 
 class Pomodoro_frame(customtkinter.CTkFrame):
@@ -20,6 +24,28 @@ class Pomodoro_frame(customtkinter.CTkFrame):
                                                    font=('Arial', 40, 'bold'))
         self.time_counter.pack(padx=30, pady=15)
 
+    def deserialize_settings(self, settings_file):
+        if (not Path().cwd().joinpath(settings_file).exists()):
+            self.logger.logObj.error(f"Settings file {settings_file} does not exist.")
+            return 1
+        
+        json_data = None
+        with open(settings_file, "r") as fp_settings:
+            json_data = json.load(fp_settings)
+
+        self.update_times(tuple(json_data["study_time"]), tuple(json_data["break_time"]),
+                          tuple(json_data["long_break_time"]), json_data["until_long_break_num"])
+
+        if json_data["notification_filename"] and json_data["notification_filename"] != "None":
+            self.wave_obj = simpleaudio.WaveObject.from_wave_file(json_data["notification_filename"])        
+
+        if threading.active_count() == 1:
+            self.root.start_countdown()
+            self.root.switch.configure(state='normal')
+            self.root.switch.toggle()
+        
+        return json_data
+        
 
     def update_times(self, new_study_time, new_break_time, new_long_break_time, new_until_long_break):
         self.study_time = new_study_time
@@ -28,7 +54,7 @@ class Pomodoro_frame(customtkinter.CTkFrame):
         self.until_long_break = new_until_long_break
 
 
-    def countdown(self, event):
+    def countdown(self, id, events, stop_flags):
         while True:
             # If it's time for a session
             if self.study:
@@ -43,10 +69,10 @@ class Pomodoro_frame(customtkinter.CTkFrame):
                 self.logger.logObj.info(f"Starting {self.break_time[3]}H:{self.break_time[4]}M:{self.break_time[5]}S short break")
                 hours, minutes, seconds = self.break_time[3], self.break_time[4], self.break_time[5]
 
-            # If m >= 60, then add time to h
-            if minutes >= 60:
-                hours = int(minutes/60)
-                minutes = minutes%60
+            # # If m >= 60, then add time to h
+            # if minutes >= 60:
+            #     hours = int(minutes/60)
+            #     minutes = minutes%60
 
             # Start the countdown
             for h in range(hours, -1, -1):
@@ -59,15 +85,26 @@ class Pomodoro_frame(customtkinter.CTkFrame):
                         for i in range(10):
                             self.after(100, self.update())
                         # Pause if pause/start switch has been toggled
+                        # print(f"Stop flag? {stop_flags[id]}")
+                        if stop_flags[id]:
+                            # print("Stopped")
+                            self.logger.logObj.warning(f"Closing thread")
+                            return 0
                         if not self.start:
+                            # print("Paused inside thread")
                             self.logger.logObj.info(f"Paused")
-                            event.wait()
-                            event.clear()
+                            events[id].wait()
+                            events[id].clear()
                             self.logger.logObj.info(f"Unpaused")
+                        if stop_flags[id]:
+                            # print("Stopped")
+                            self.logger.logObj.warning(f"Closing thread")
+                            return 0
                     if m:
                         seconds = 59
                 if h:
                     minutes = 59
+                    seconds = 59
             
             # When finished studying add pomodoro else if finished break stop running the clock until client wants
             # to start another session.
