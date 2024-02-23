@@ -1,6 +1,5 @@
 import customtkinter
 import tkinter
-import threading
 import simpleaudio
 import json
 from pathlib import Path
@@ -111,15 +110,5 @@ class Options_toplevel():
         with open("settings.json", "w") as settings_file:
             settings_file.write(json.dumps(json_data, indent=4))
 
-        if threading.active_count() > 1:
-            # If we are paused then unpause with switch
-            if not self.root.timer.start:
-                self.root.switch.toggle()
-            # Kill the thread
-            self.root.thread_watcher["stop_flags"][-1] = True
-
-        self.root.start_countdown()
-        self.root.switch.configure(state='normal')
-        self.root.switch.toggle()
-            
+        self.root.main_thread_maker() 
 

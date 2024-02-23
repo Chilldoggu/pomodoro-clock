@@ -1,11 +1,5 @@
 __pycache__/
-.main.py.swp
-.gitignore.swp
-.Pomodoro_frame.py.swp
-.Options.py.swp
-applause.wav
+env_pomodoro/
+*.swp
 *.log
-pomodoro_clock/
-*.ico
-env_pomodoro
-logs.log
+*.sh
