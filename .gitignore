@@ -1,5 +1,6 @@
 __pycache__/
 env_pomodoro/
+old_*
 *.swp
 *.log
 *.sh

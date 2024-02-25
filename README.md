@@ -1,5 +1,5 @@
 # Overview 
-Simple pomodoro app for tracking your studying progress written in python. GUI was made with a help of [customtkinter](https://customtkinter.tomschimansky.com/).
+Simple pomodoro app for tracking your studying progress written in python. GUI was made with a help of [customtkinter](https://customtkinter.tomschimansky.com/). Use `*.wav` files for notification sounds.
 
 # Running
 I strongly advise using [virtual environments](https://docs.python.org/3/tutorial/venv.html) before installing any kind of packages and running the code. Install packages with this command:

@@ -3,7 +3,8 @@ import tkinter
 
 from time import strftime
 from datetime import date
-from PIL import Image, ImageTk
+from PIL import Image
+from pathlib import Path
 
 class Pomodoro_frame(customtkinter.CTkFrame):
     start = True
@@ -27,12 +28,17 @@ class Pomodoro_frame(customtkinter.CTkFrame):
                                                    textvariable=self.string_time,
                                                    font=('Arial', 40, 'bold'))
 
-        self.study_image = customtkinter.CTkImage(Image.open("book.png"), size=(60, 60))
-        self.break_image = customtkinter.CTkImage(Image.open("teacup.png"), size=(60, 60))
-        self.study_image_label1 = customtkinter.CTkLabel(self, image=self.study_image, text="")
-        self.study_image_label2 = customtkinter.CTkLabel(self, image=self.study_image, text="")
-        self.break_image_label1 = customtkinter.CTkLabel(self, image=self.break_image, text="")
-        self.break_image_label2 = customtkinter.CTkLabel(self, image=self.break_image, text="")
+        self.study_image = None
+        self.break_image = None
+        if Path.cwd().joinpath("book.png").exists() and Path.cwd().joinpath("teacup.png").exists():
+            self.study_image = customtkinter.CTkImage(Image.open("book.png"), size=(60, 60))
+            self.break_image = customtkinter.CTkImage(Image.open("teacup.png"), size=(60, 60))
+            self.study_image_label1 = customtkinter.CTkLabel(self, image=self.study_image, text="")
+            self.study_image_label2 = customtkinter.CTkLabel(self, image=self.study_image, text="")
+            self.break_image_label1 = customtkinter.CTkLabel(self, image=self.break_image, text="")
+            self.break_image_label2 = customtkinter.CTkLabel(self, image=self.break_image, text="")
+        else:
+            self.logger.logObj.error(f"Can't find book.png or teacup.png")
 
         self.time_counter.grid(column=1, row=0, padx=0, pady=15)
         
@@ -59,20 +65,23 @@ class Pomodoro_frame(customtkinter.CTkFrame):
         while True:
             # If it's time for a session
             if self.study:
-                self.study_image_label1.grid(column=0, row=0, padx=30, pady=15)
-                self.study_image_label2.grid(column=2, row=0, padx=30, pady=15)
+                if self.study_image is not None:
+                    self.study_image_label1.grid(column=0, row=0, padx=30, pady=15)
+                    self.study_image_label2.grid(column=2, row=0, padx=30, pady=15)
                 self.logger.logObj.info(f"Starting {self.study_time[3]}H:{self.study_time[4]}M:{self.study_time[5]}S study session.")
                 hours, minutes, seconds = self.study_time[3], self.study_time[4], self.study_time[5]
             # If it's time for long break
             elif self.pomodoros % self.until_long_break == 0:
-                self.break_image_label1.grid(column=0, row=0, padx=30, pady=15)
-                self.break_image_label2.grid(column=2, row=0, padx=30, pady=15)
+                if self.study_image is not None:
+                    self.break_image_label1.grid(column=0, row=0, padx=30, pady=15)
+                    self.break_image_label2.grid(column=2, row=0, padx=30, pady=15)
                 self.logger.logObj.info(f"Starting {self.long_break_time[3]}H:{self.long_break_time[4]}M:{self.long_break_time[5]}S long break")
                 hours, minutes, seconds = self.long_break_time[3], self.long_break_time[4], self.long_break_time[5]
             # If it's time for normal break
             else:
-                self.break_image_label1.grid(column=0, row=0, padx=30, pady=15)
-                self.break_image_label2.grid(column=2, row=0, padx=30, pady=15)
+                if self.study_image is not None:
+                    self.break_image_label1.grid(column=0, row=0, padx=30, pady=15)
+                    self.break_image_label2.grid(column=2, row=0, padx=30, pady=15)
                 self.logger.logObj.info(f"Starting {self.break_time[3]}H:{self.break_time[4]}M:{self.break_time[5]}S short break")
                 hours, minutes, seconds = self.break_time[3], self.break_time[4], self.break_time[5]
 
