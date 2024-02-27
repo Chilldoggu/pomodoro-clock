@@ -66,6 +66,8 @@ class Pomodoro_frame(customtkinter.CTkFrame):
             # If it's time for a session
             if self.study:
                 if self.study_image is not None:
+                    self.break_image_label1.grid_remove()
+                    self.break_image_label2.grid_remove()
                     self.study_image_label1.grid(column=0, row=0, padx=30, pady=15)
                     self.study_image_label2.grid(column=2, row=0, padx=30, pady=15)
                 self.logger.logObj.info(f"Starting {self.study_time[3]}H:{self.study_time[4]}M:{self.study_time[5]}S study session.")
@@ -73,6 +75,8 @@ class Pomodoro_frame(customtkinter.CTkFrame):
             # If it's time for long break
             elif self.pomodoros % self.until_long_break == 0:
                 if self.study_image is not None:
+                    self.study_image_label1.grid_remove()
+                    self.study_image_label2.grid_remove()
                     self.break_image_label1.grid(column=0, row=0, padx=30, pady=15)
                     self.break_image_label2.grid(column=2, row=0, padx=30, pady=15)
                 self.logger.logObj.info(f"Starting {self.long_break_time[3]}H:{self.long_break_time[4]}M:{self.long_break_time[5]}S long break")
@@ -80,6 +84,8 @@ class Pomodoro_frame(customtkinter.CTkFrame):
             # If it's time for normal break
             else:
                 if self.study_image is not None:
+                    self.study_image_label1.grid_remove()
+                    self.study_image_label2.grid_remove()
                     self.break_image_label1.grid(column=0, row=0, padx=30, pady=15)
                     self.break_image_label2.grid(column=2, row=0, padx=30, pady=15)
                 self.logger.logObj.info(f"Starting {self.break_time[3]}H:{self.break_time[4]}M:{self.break_time[5]}S short break")

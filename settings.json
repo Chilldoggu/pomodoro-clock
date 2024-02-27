@@ -4,7 +4,7 @@
         0,
         0,
         0,
-        50,
+        0,
         0,
         0,
         0,
@@ -15,7 +15,7 @@
         0,
         0,
         0,
-        10,
+        0,
         0,
         0,
         0,
@@ -26,12 +26,12 @@
         0,
         0,
         0,
-        20,
+        0,
         0,
         0,
         0,
         0
     ],
     "until_long_break_num": 3,
-    "notification_filename": "tuturu_1.wav"
+    "notification_filename": "None"
 }
