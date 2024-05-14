@@ -1,11 +1,11 @@
-import threading
-import customtkinter
-import simpleaudio
 import json
+import threading
+import simpleaudio
+import customtkinter
 
 from logger import Log
-from PIL import Image, ImageTk
 from pathlib import Path
+from PIL import Image, ImageTk
 
 from Options import Options_toplevel
 from Pomodoro_frame import Pomodoro_frame
@@ -64,6 +64,16 @@ class App(customtkinter.CTk):
                                                      font=('Arial', 12),
                                                      command=self.pop_options)
         self.option_button.grid(row=2, column=1, sticky='N', pady=(0,20), padx=(35, 0))
+        self.skip_break_button = customtkinter.CTkButton(self,
+                                                         width=60,
+                                                         height=30,
+                                                         text="Skip Break",
+                                                         fg_color="#de333e",
+                                                         hover_color="#b02c35",
+                                                         font=('Arial', 12),
+                                                         command=self.skip_break,
+                                                         state='disabled')
+        self.skip_break_button.grid(row=2, column=0, sticky='N', pady=(0,20), padx=(0, 35))
 
         # Load settings from settings.json and start timer countdown thread
         self.settings = self.deserialize_settings("settings.json")
@@ -108,6 +118,10 @@ class App(customtkinter.CTk):
         if not self.timer.start:
             self.thread_watcher["events"][-1].set() 
         self.timer.start = not self.timer.start
+
+
+    def skip_break(self):
+        self.timer.skip_break = True
 
 
     def pop_options(self):

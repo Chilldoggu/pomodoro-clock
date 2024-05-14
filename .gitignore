@@ -4,3 +4,4 @@ old_*
 *.swp
 *.log
 *.sh
+settings.json

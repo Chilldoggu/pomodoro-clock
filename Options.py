@@ -1,10 +1,11 @@
-import customtkinter
+import json
 import tkinter
 import simpleaudio
-import json
+import customtkinter
+
+from time import sleep
 from pathlib import Path
 from tkinter import filedialog
-from time import sleep
 
 class Options_slider_frame(customtkinter.CTkFrame):
     def __init__(self, top_level, default_value, time_string, range=(0, 120)):

@@ -1,10 +1,10 @@
-import customtkinter
 import tkinter
+import customtkinter
 
-from time import strftime
-from datetime import date
 from PIL import Image
 from pathlib import Path
+from time import strftime
+from datetime import date
 
 class Pomodoro_frame(customtkinter.CTkFrame):
     start = True
@@ -20,6 +20,7 @@ class Pomodoro_frame(customtkinter.CTkFrame):
         self.root = root
         self.logger = logger
         self.study_time = self.break_time = None
+        self.skip_break = False
         self.pomodoros = self.get_today_pomodoros()
         self.pomodoro_string = tkinter.StringVar(value=f"Pomodoros: {self.pomodoros}")
         self.string_time = tkinter.StringVar(value="Setup needed")
@@ -122,11 +123,18 @@ class Pomodoro_frame(customtkinter.CTkFrame):
                             # print("Stopped")
                             self.logger.logObj.warning(f"Closing thread")
                             return 0
+
+                        if self.skip_break:
+                            break
                     if m:
                         seconds = 59
+                    if self.skip_break:
+                        break
                 if h:
                     minutes = 59
                     seconds = 59
+                if self.skip_break:
+                    break
             
             # When finished studying add pomodoro else if finished break stop running the clock until client wants
             # to start another session.
@@ -134,12 +142,17 @@ class Pomodoro_frame(customtkinter.CTkFrame):
                 self.logger.logObj.info(f"Finished study session.")
                 self.pomodoros += 1
                 self.pomodoro_string.set("🍅Pomodoros: " + str(self.pomodoros))
+                self.root.skip_break_button.configure(state='enabled')
             elif self.pomodoros % self.until_long_break == 0:
                 self.logger.logObj.info(f"Finished long break")
                 self.root.switch.toggle()
+                self.root.skip_break_button.configure(state='disabled')
             else:
                 self.logger.logObj.info(f"Finished short break")
                 self.root.switch.toggle()
+                self.root.skip_break_button.configure(state='disabled')
+
+            self.skip_break = False
 
             self.study = not self.study
             # Daj delay na zagranie sygnalu dzwiekowego konca nauki/przerwy
